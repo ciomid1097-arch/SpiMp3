@@ -28,5 +28,8 @@ object WhatsNew {
             "Properly signed release build — the app is now published on Myket",
             "Fixed media-session crash on unknown external commands",
         ),
+        6 to listOf(
+            "New, centered app icon — the launcher icon now matches the store listing",
+        ),
     )
 }

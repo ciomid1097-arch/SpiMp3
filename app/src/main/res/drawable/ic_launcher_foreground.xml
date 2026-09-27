@@ -4,18 +4,25 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <group android:scaleX="0.5" android:scaleY="0.5" android:pivotX="54" android:pivotY="54">
+    <!-- The note glyph spans x 12..69, y 14..76.5 in its own coordinates
+         (center 40.5,45.25). The paths below are those coordinates shifted
+         +13.5 in x and +8.75 in y, so the glyph is centered on the 54,54 canvas
+         midpoint before the group scales it 0.78 around that midpoint — the
+         farthest point then sits ~30.5dp from center, inside the 33dp adaptive
+         safe zone. store/play-icon.png is rendered from this exact geometry
+         (tools/render-store-icon.html), keep the two in sync. -->
+    <group android:scaleX="0.78" android:scaleY="0.78" android:pivotX="54" android:pivotY="54">
         <path
-            android:pathData="M38,22 L38,64 A13,13 0 1 1 33,53.2 L33,30 L69,24 L69,50 A13,13 0 1 1 64,39.2 L64,14 Z"
+            android:pathData="M51.5,30.75 L51.5,72.75 A13,13 0 1 1 46.5,61.95 L46.5,38.75 L82.5,32.75 L82.5,58.75 A13,13 0 1 1 77.5,47.95 L77.5,22.75 Z"
             android:fillColor="#22C55E" />
         <path
-            android:pathData="M46,72 m-2.5,0 a2.5,2.5 0 1 1 5,0 a2.5,2.5 0 1 1 -5,0"
+            android:pathData="M59.5,80.75 m-2.5,0 a2.5,2.5 0 1 1 5,0 a2.5,2.5 0 1 1 -5,0"
             android:fillColor="#4ADE80" />
         <path
-            android:pathData="M56,72 m-2.5,0 a2.5,2.5 0 1 1 5,0 a2.5,2.5 0 1 1 -5,0"
+            android:pathData="M69.5,80.75 m-2.5,0 a2.5,2.5 0 1 1 5,0 a2.5,2.5 0 1 1 -5,0"
             android:fillColor="#4ADE80" />
         <path
-            android:pathData="M66,72 m-2.5,0 a2.5,2.5 0 1 1 5,0 a2.5,2.5 0 1 1 -5,0"
+            android:pathData="M79.5,80.75 m-2.5,0 a2.5,2.5 0 1 1 5,0 a2.5,2.5 0 1 1 -5,0"
             android:fillColor="#4ADE80" />
     </group>
 </vector>

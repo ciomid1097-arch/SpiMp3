@@ -64,9 +64,8 @@ jobs:
           TAG: ${{ github.ref_name }}
         run: |
           VER=${TAG#v}
-          gh release upload "$TAG" \
-            "app/build/outputs/apk/release/app-release.apk#SpiMp3-$VER.apk" \
-            --clobber
+          cp app/build/outputs/apk/release/app-release.apk "SpiMp3-$VER.apk"
+          gh release upload "$TAG" "SpiMp3-$VER.apk" --clobber
 
       - name: Summary
         run: echo "Release ${{ github.ref_name }} published with APK." >> "$GITHUB_STEP_SUMMARY"

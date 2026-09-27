@@ -98,7 +98,8 @@ Play requires a public URL that is reachable, non-`noindex`, and matches what th
    (public) GitHub repo.
 2. Repo → **Settings → Pages** → Source: *Deploy from a branch*, branch `main`, folder
    `/ (root)` → Save.
-3. The URL is `https://<user>.github.io/<repo>/privacy-policy.html`.
+3. The URL is `https://ciomid1097-arch.github.io/SpiMp3/store/privacy-policy.html`
+   (already live — Pages is enabled on the repo).
 
 Paste that URL into Play Console → **App content → Privacy policy**, and into
 **Store settings → Contact website**.

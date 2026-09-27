@@ -87,7 +87,7 @@ No internet. No contacts. No location. No camera. No microphone. No device ident
 You can verify the exact list in Android Settings → Apps → SpiMp3 → Permissions.
 
 ▌ In-app privacy policy
-Settings → Security & privacy, or at https://<your-domain>/privacy-policy.html
+Settings → Security & privacy, or at https://ciomid1097-arch.github.io/SpiMp3/store/privacy-policy.html
 
 SpiMp3 is an independent app and is not affiliated with Google, Spotify or any other music
 service. It contains no ads, no tracking and no in-app purchases.

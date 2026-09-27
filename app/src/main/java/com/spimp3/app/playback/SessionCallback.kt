@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.media3.session.MediaLibraryService.MediaLibrarySession
 import androidx.media3.session.MediaSession
 import androidx.media3.session.SessionCommand
+import androidx.media3.session.SessionError
 import androidx.media3.session.SessionResult
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
@@ -56,7 +57,9 @@ class SessionCallback(
                 }
                 Futures.immediateFuture(SessionResult(SessionResult.RESULT_SUCCESS))
             }
-            else -> Futures.immediateFuture(SessionResult(SessionResult.RESULT_ERROR_NOT_SUPPORTED))
+            // SessionResult only accepts RESULT_SUCCESS in its int constructor;
+            // every other outcome is expressed through SessionError.
+            else -> Futures.immediateFuture(SessionResult(SessionError.ERROR_NOT_SUPPORTED))
         }
     }
 }

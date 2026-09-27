@@ -24,5 +24,9 @@ object WhatsNew {
             "Smoother update experience: the What's new note now appears exactly once per version",
             "Update banner got a dismiss button — hide it until the next app launch",
         ),
+        5 to listOf(
+            "Properly signed release build — the app is now published on Myket",
+            "Fixed media-session crash on unknown external commands",
+        ),
     )
 }

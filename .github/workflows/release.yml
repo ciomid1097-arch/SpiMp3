@@ -26,25 +26,49 @@ jobs:
           packages: ''
           log-accepted-android-sdk-licenses: false
 
+      # Restoring the key is the step that silently failed before: when the
+      # secrets were absent the build still succeeded and shipped a DEBUG-signed
+      # APK. Fail loudly and early instead.
       - name: Extract signing materials from secrets
         env:
           KEYSTORE_BASE64: ${{ secrets.SECRET_KEYSTORE_BASE64 }}
           KEYSTORE_PROPS: ${{ secrets.SECRET_KEYSTORE_PROPERTIES }}
         run: |
-          echo "$KEYSTORE_BASE64" | base64 -d > spimp3-release.p12
-          echo "$KEYSTORE_PROPS" > keystore.properties
+          set -euo pipefail
+          if [ -z "$KEYSTORE_BASE64" ] || [ -z "$KEYSTORE_PROPS" ]; then
+            echo "::error::Keystore secrets are missing (SECRET_KEYSTORE_BASE64 / SECRET_KEYSTORE_PROPERTIES)."
+            exit 1
+          fi
+          printf '%s' "$KEYSTORE_BASE64" | base64 -d > spimp3-release.p12
+          printf '%s' "$KEYSTORE_PROPS" | base64 -d > keystore.properties
+          if [ ! -s spimp3-release.p12 ] || [ ! -s keystore.properties ]; then
+            echo "::error::Keystore material decoded to an empty file."
+            exit 1
+          fi
+          echo "Keystore restored: $(wc -c < spimp3-release.p12) bytes."
 
       - name: Build signed release (APK + AAB)
         run: |
           chmod +x gradlew
           ./gradlew --no-daemon :app:assembleRelease :app:bundleRelease
 
-      - name: Verify the APK is signed
+      # A debug-signed APK is rejected by Myket/Play ("signed with a debug key"),
+      # so the fingerprint is compared against the real release certificate.
+      - name: Verify the APK is signed with the RELEASE key
+        env:
+          EXPECTED_SHA256: 581c4d9183b771acaaac2865c9dbddfc208efe008d50f6bae881697ef0441455
         run: |
+          set -euo pipefail
           BT=$(ls -d "${ANDROID_HOME}/build-tools"/*/ | sort -V | tail -1)
           "$BT/apksigner" verify --print-certs app/build/outputs/apk/release/app-release.apk | tee /tmp/certs.txt
-          grep -q "certificate SHA-256 digest" /tmp/certs.txt
-          echo "Release APK is properly signed."
+          ACTUAL=$(grep -oE 'certificate SHA-256 digest: [0-9a-f]{64}' /tmp/certs.txt | head -1 | awk '{print $NF}')
+          echo "Expected: $EXPECTED_SHA256"
+          echo "Actual:   $ACTUAL"
+          if [ "$ACTUAL" != "$EXPECTED_SHA256" ]; then
+            echo "::error::Release APK is not signed with the expected release key (possibly the debug key). Aborting."
+            exit 1
+          fi
+          echo "Release APK is signed with the real release key."
 
       # For pre-existing releases (like v1.0.1) this uploads the asset; for
       # brand-new tags create-release runs first and the upload lands on the
@@ -68,4 +92,4 @@ jobs:
           gh release upload "$TAG" "SpiMp3-$VER.apk" --clobber
 
       - name: Summary
-        run: echo "Release ${{ github.ref_name }} published with APK." >> "$GITHUB_STEP_SUMMARY"
+        run: echo "Release ${{ github.ref_name }} published with a release-key-signed APK." >> "$GITHUB_STEP_SUMMARY"

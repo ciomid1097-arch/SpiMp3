@@ -15,9 +15,10 @@ import java.security.MessageDigest
  * Three cheap checks, run at process start and re-run on every resume:
  *
  *  1. **Signature pin** — on sideloaded installs the APK must carry OUR release
- *     key (the digest below). Apps installed by Google Play are exempt: Play
- *     re-signs with its own App Signing key and the package name is owner-unique
- *     on Play, so the package check below already covers them.
+ *     key (the digest below). Apps installed by a store that re-signs uploads are
+ *     exempt: Google Play and Myket both sign with their own key, and the package
+ *     name is owner-unique on those stores, so the package check below already
+ *     covers them.
  *  2. **Package pin** — the package must still be com.spimp3.app, so renaming
  *     and re-publishing a "fork" of the UI is blocked at the first gate.
  *  3. **Anti-debug** — a live debugger makes the guard fail, which blocks the
@@ -49,6 +50,14 @@ object IntegrityCheck {
         73, 69, 71, 4, 89, 90, 67, 71, 90, 25, 4, 75, 90, 90,
     )
 
+    // Installers that are allowed to bypass the signature check, because they may
+    // re-sign the APK with their own key. An app that is not installed by one of
+    // these still has to present the exact release certificate below.
+    private val TRUSTED_INSTALLERS = setOf(
+        "com.android.vending", // Google Play
+        "com.myket.market",    // Myket (مایکت)
+    )
+
     /** False once a tamper condition has been detected (recompose-observed). */
     var enabled: Boolean by mutableStateOf(true)
         private set
@@ -63,15 +72,16 @@ object IntegrityCheck {
         val pm = context.packageManager
         val pkg = context.packageName
 
-        // Play installs are re-signed by Play App Signing; the developer account
-        // is the only way a com.spimp3.app build reaches Play, so trust it.
-        val fromPlay = if (Build.VERSION.SDK_INT >= 30) {
-            pm.getInstallSourceInfo(pkg).installingPackageName == "com.android.vending"
+        // Store installs may be re-signed by the store's own app-signing service
+        // (Google Play App Signing does this, and Myket re-packages APKs for some
+        // devices). When the app was installed by a known store, trust it.
+        val installer = if (Build.VERSION.SDK_INT >= 30) {
+            pm.getInstallSourceInfo(pkg).installingPackageName
         } else {
             @Suppress("DEPRECATION")
-            pm.getInstallerPackageName(pkg) == "com.android.vending"
+            pm.getInstallerPackageName(pkg)
         }
-        if (fromPlay) return@runCatching true
+        if (installer in TRUSTED_INSTALLERS) return@runCatching true
 
         val sigs = if (Build.VERSION.SDK_INT >= 28) {
             pm.getPackageInfo(pkg, PackageManager.GET_SIGNING_CERTIFICATES)

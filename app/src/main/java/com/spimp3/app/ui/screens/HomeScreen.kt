@@ -95,16 +95,17 @@ fun HomeScreen(
     var showWhatsNew by remember { mutableStateOf(false) }
     var whatsNewNotes by remember { mutableStateOf<List<String>>(emptyList()) }
     val updateInfo by vm.updateInfo.collectAsState()
+    val lastSeenVersion by vm.lastSeenVersion.collectAsState()
     LaunchedEffect(Unit) { vm.checkForUpdateOnce() }
 
-    LaunchedEffect(vm.lastSeenVersion.value) {
+    LaunchedEffect(lastSeenVersion) {
         val code = com.spimp3.app.BuildConfig.VERSION_CODE
         // Show only when this version's notes exist AND the user has not been
         // shown this exact version before (marker persisted in DataStore).
         // Fresh installs have no marker (-1) and still get it once; after the
         // single showing the marker equals the code, so it never repeats —
         // not on navigation, not on relaunch, until the next release.
-        if (!vm.whatsNewShownThisRun && vm.lastSeenVersion.value != code && code > 1) {
+        if (!vm.whatsNewShownThisRun && lastSeenVersion != code && code > 1) {
             WhatsNew.notes[code]?.let { notes ->
                 vm.markWhatsNewShown()
                 vm.markVersionSeen(code)

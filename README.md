@@ -9,6 +9,9 @@ No internet permission, no accounts, no telemetry — your music never leaves th
 Grab the latest APK from [**GitHub Releases**](https://github.com/ciomid1097-arch/SpiMp3/releases),
 install it, grant audio access — done. The app never touches the network.
 
+Every release is signed with the project key. If a build ever lands without it, the
+release workflow fails instead of publishing a debug-signed APK.
+
 > Repacking notice: release builds are pinned to their signing key and package
 > name at runtime; an altered build renders an empty window instead of working.
 
@@ -53,13 +56,14 @@ install it, grant audio access — done. The app never touches the network.
 ./gradlew :app:test                 # unit tests
 ```
 
-CI mirrors this: **build.yml** compiles and unit-tests every push (debug key);
+CI mirrors this: **build.yml** compiles, lints and unit-tests every push (debug key);
 **release.yml** fires on a `vX.Y.Z` tag, restores the signing key from GitHub
-Secrets, builds a signed APK and attaches it to the matching Release. Publishing
-an update is therefore just:
+Secrets, builds a signed APK, checks the certificate fingerprint against the
+expected release key and attaches it to the matching Release. Publishing an update
+is therefore just:
 
 ```bash
-git tag v1.1.0 && git push origin v1.1.0
+git tag v1.1.2 && git push origin v1.1.2
 ```
 
 Output lands in `app/build/outputs/…` (or `$SPIMP3_OUT_DIR` when set — see below).
@@ -72,6 +76,8 @@ Everything needed for a submission lives in [`store/`](store/):
 |---|---|
 | [`store/PLAY_STORE.md`](store/PLAY_STORE.md) | The full console guide — every form answer, and the 12-tester / 14-day rule new accounts must clear |
 | [`store/listing-en.md`](store/listing-en.md) | Copy-paste title, short/full description and release notes |
+| [`store/MYKET.md`](store/MYKET.md) | Myket submission guide, including the debug-key rejection and its fix |
+| [`store/listing-fa.md`](store/listing-fa.md) | Persian listing text and the answers to the reviewer's usual questions |
 | [`store/privacy-policy.html`](store/privacy-policy.html) | Self-contained policy page, ready for GitHub Pages |
 | `store/play-icon.png` | 512×512 store icon |
 | `store/feature-graphic.png` | 1024×500 feature graphic |
@@ -79,6 +85,24 @@ Everything needed for a submission lives in [`store/`](store/):
 Signing uses a real release key (`spimp3-release.p12`, valid to 2054) read from the
 git-ignored `keystore.properties`. **Back both files up** — losing them means you cannot
 update the app on Play without enrolling in Play App Signing.
+
+## Myket (مایکت)
+
+SpiMp3 is listed on Myket as well. The submission notes, the Persian store copy and
+the reason an earlier build was rejected ("signed with a debug key") are documented in
+[`store/MYKET.md`](store/MYKET.md) and [`store/listing-fa.md`](store/listing-fa.md).
+
+## Signing
+
+A release build **fails** when `keystore.properties` is absent — it no longer falls
+back to the debug key, because that shipped an unusable APK to a store. For a local
+experiment you can opt in explicitly:
+
+```bash
+./gradlew :app:assembleRelease -Pspimp3.signWithDebugKey=true   # never publish this
+```
+
+Start from [`store/keystore.properties.example`](store/keystore.properties.example).
 
 The same policy and terms text is readable inside the app at
 *Settings → Security & privacy*, so there is no network dependency for compliance either.

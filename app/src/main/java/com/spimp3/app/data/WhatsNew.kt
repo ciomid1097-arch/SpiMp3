@@ -20,5 +20,9 @@ object WhatsNew {
             "Play counts per song, visible in song info",
             "Automatic update check with a one-tap download link",
         ),
+        4 to listOf(
+            "Smoother update experience: the What's new note now appears exactly once per version",
+            "Update banner got a dismiss button — hide it until the next app launch",
+        ),
     )
 }

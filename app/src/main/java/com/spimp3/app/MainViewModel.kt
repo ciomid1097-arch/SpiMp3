@@ -3,12 +3,15 @@ package com.spimp3.app
 import android.app.Application
 import android.content.pm.PackageManager
 import android.os.Build
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.spimp3.app.data.MusicRepository
 import com.spimp3.app.data.Playlist
 import com.spimp3.app.data.SettingsStore
 import com.spimp3.app.playback.PlayerConnection
+import androidx.compose.runtime.mutableStateOf
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharingStarted
@@ -50,6 +53,40 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
 
     val lastSeenVersion: StateFlow<Int> = settingsStore.lastSeenVersion
         .stateIn(viewModelScope, SharingStarted.Eagerly, -1)
+
+    // Session-scoped UI flags: computed once per app run, never re-armed by
+    // navigation, so dialogs and banners cannot pop up again on every visit
+    // to Home.
+    var whatsNewShownThisRun by mutableStateOf(false)
+        private set
+    var updateDismissedThisRun by mutableStateOf(false)
+        private set
+    private var updateCheckDone = false
+
+    fun markWhatsNewShown() {
+        whatsNewShownThisRun = true
+    }
+
+    fun dismissUpdateBanner() {
+        updateDismissedThisRun = true
+    }
+
+    /** Runs the remote update check once per app run (not per navigation). */
+    fun checkForUpdateOnce() {
+        if (updateCheckDone || !updateCheckEnabled.value) return
+        updateCheckDone = true
+        viewModelScope.launch {
+            val info = com.spimp3.app.data.UpdateChecker.check(
+                com.spimp3.app.BuildConfig.VERSION_CODE,
+            )
+            _updateInfo.value = info
+        }
+    }
+
+    private val _updateInfo =
+        MutableStateFlow<com.spimp3.app.data.UpdateChecker.UpdateInfo?>(null)
+    val updateInfo: StateFlow<com.spimp3.app.data.UpdateChecker.UpdateInfo?> =
+        _updateInfo.asStateFlow()
 
     init {
         refreshPermission()

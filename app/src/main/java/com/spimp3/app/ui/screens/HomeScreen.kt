@@ -91,32 +91,26 @@ fun HomeScreen(
     var editPlaylist by remember { mutableStateOf<com.spimp3.app.data.Playlist?>(null) }
 
     // ---- Updates: remote check + local "What's new" ----
-    var updateInfo by remember { mutableStateOf<UpdateChecker.UpdateInfo?>(null) }
-    LaunchedEffect(Unit) {
-        if (vm.updateCheckEnabled.value) {
-            updateInfo = UpdateChecker.check(com.spimp3.app.BuildConfig.VERSION_CODE)
-        }
-    }
+    // Both fire at most once per app run; navigation can never re-arm them.
     var showWhatsNew by remember { mutableStateOf(false) }
     var whatsNewNotes by remember { mutableStateOf<List<String>>(emptyList()) }
+    val updateInfo by vm.updateInfo.collectAsState()
+    LaunchedEffect(Unit) { vm.checkForUpdateOnce() }
+
     LaunchedEffect(vm.lastSeenVersion.value) {
         val code = com.spimp3.app.BuildConfig.VERSION_CODE
-        // An in-place upgrade = the package was updated after it was first
-        // installed (firstInstallTime != lastUpdateTime). Covers users whose
-        // previous version never recorded a marker, without bothering fresh
-        // installs. The marker then keeps repeats away on later launches.
-        val upgraded = runCatching {
-            val pm = context.packageManager
-            val t = pm.getPackageInfo(context.packageName, 0)
-            t.firstInstallTime != t.lastUpdateTime
-        }.getOrDefault(false)
-        val unseen = vm.lastSeenVersion.value in 1 until code
-        if ((unseen || upgraded) && code > 1) {
+        // Show only when this version's notes exist AND the user has not been
+        // shown this exact version before (marker persisted in DataStore).
+        // Fresh installs have no marker (-1) and still get it once; after the
+        // single showing the marker equals the code, so it never repeats —
+        // not on navigation, not on relaunch, until the next release.
+        if (!vm.whatsNewShownThisRun && vm.lastSeenVersion.value != code && code > 1) {
             WhatsNew.notes[code]?.let { notes ->
+                vm.markWhatsNewShown()
+                vm.markVersionSeen(code)
                 whatsNewNotes = notes
                 showWhatsNew = true
             }
-            vm.markVersionSeen(code)
         }
     }
     val favoritesSongs = remember(library.songs, favorites) { library.songs.filter { it.id in favorites } }
@@ -168,17 +162,20 @@ fun HomeScreen(
         }
 
         updateInfo?.let { info ->
-            item {
-                UpdateCard(
-                    info = info,
-                    onUpdate = {
-                        val intent = android.content.Intent(
-                            android.content.Intent.ACTION_VIEW,
-                            android.net.Uri.parse(info.apkUrl),
-                        )
-                        runCatching { context.startActivity(intent) }
-                    },
-                )
+            if (!vm.updateDismissedThisRun) {
+                item {
+                    UpdateCard(
+                        info = info,
+                        onUpdate = {
+                            val intent = android.content.Intent(
+                                android.content.Intent.ACTION_VIEW,
+                                android.net.Uri.parse(info.apkUrl),
+                            )
+                            runCatching { context.startActivity(intent) }
+                        },
+                        onDismiss = { vm.dismissUpdateBanner() },
+                    )
+                }
             }
         }
         item {

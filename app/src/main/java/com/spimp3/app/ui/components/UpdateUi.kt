@@ -3,6 +3,7 @@ package com.spimp3.app.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Download
 import androidx.compose.material.icons.rounded.SystemUpdate
 import androidx.compose.material3.AlertDialog
@@ -41,6 +43,7 @@ import com.spimp3.app.ui.theme.onAccentColor
 fun UpdateCard(
     info: UpdateChecker.UpdateInfo,
     onUpdate: () -> Unit,
+    onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -75,13 +78,28 @@ fun UpdateCard(
             Icons.Rounded.Download,
             contentDescription = "Download",
             tint = accentColor(),
+            modifier = Modifier.padding(end = 8.dp),
         )
+        Box(
+            Modifier
+                .size(28.dp)
+                .clip(RoundedCornerShape(50))
+                .clickable(onClick = onDismiss),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                Icons.Rounded.Close,
+                contentDescription = "Dismiss until next launch",
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(18.dp),
+            )
+        }
     }
 }
 
 /**
- * "What's new" dialog after an in-place upgrade. The user can always dismiss
- * it — that is the whole point of it being a dialog, not a gate.
+ * "What's new" dialog after an in-place upgrade. Shown exactly once per
+ * release (guarded by the persisted version marker), with a single OK button.
  */
 @Composable
 fun WhatsNewDialog(
@@ -130,10 +148,7 @@ fun WhatsNewDialog(
                     containerColor = accentColor(),
                     contentColor = onAccentColor(),
                 ),
-            ) { Text("Got it") }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Later") }
+            ) { Text("OK") }
         },
     )
 }

@@ -21,6 +21,10 @@ jobs:
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          accept-android-sdk-licenses: false
+          packages: ''
+          log-accepted-android-sdk-licenses: false
 
       - name: Extract signing materials from secrets
         env:

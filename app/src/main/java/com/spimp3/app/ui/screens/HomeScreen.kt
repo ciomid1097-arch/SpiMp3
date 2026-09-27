@@ -36,6 +36,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -44,16 +45,21 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.spimp3.app.MainViewModel
 import com.spimp3.app.data.Song
+import com.spimp3.app.data.UpdateChecker
+import com.spimp3.app.data.WhatsNew
 import com.spimp3.app.data.formatDuration
 import com.spimp3.app.ui.components.Artwork
 import com.spimp3.app.ui.components.ArtworkFallback
 import com.spimp3.app.ui.components.RefreshableBox
 import com.spimp3.app.ui.components.SelectionUniverse
 import com.spimp3.app.ui.components.SongRow
+import com.spimp3.app.ui.components.UpdateCard
+import com.spimp3.app.ui.components.WhatsNewDialog
 import com.spimp3.app.ui.theme.accentColor
 import java.util.Calendar
 
@@ -79,9 +85,40 @@ fun HomeScreen(
     val player = vm.player
     val currentId by player.currentSongId.collectAsState()
     val isPlaying by player.isPlaying.collectAsState()
+    val context = LocalContext.current
 
     var showNewPlaylist by remember { mutableStateOf(false) }
     var editPlaylist by remember { mutableStateOf<com.spimp3.app.data.Playlist?>(null) }
+
+    // ---- Updates: remote check + local "What's new" ----
+    var updateInfo by remember { mutableStateOf<UpdateChecker.UpdateInfo?>(null) }
+    LaunchedEffect(Unit) {
+        if (vm.updateCheckEnabled.value) {
+            updateInfo = UpdateChecker.check(com.spimp3.app.BuildConfig.VERSION_CODE)
+        }
+    }
+    var showWhatsNew by remember { mutableStateOf(false) }
+    var whatsNewNotes by remember { mutableStateOf<List<String>>(emptyList()) }
+    LaunchedEffect(vm.lastSeenVersion.value) {
+        val code = com.spimp3.app.BuildConfig.VERSION_CODE
+        // An in-place upgrade = the package was updated after it was first
+        // installed (firstInstallTime != lastUpdateTime). Covers users whose
+        // previous version never recorded a marker, without bothering fresh
+        // installs. The marker then keeps repeats away on later launches.
+        val upgraded = runCatching {
+            val pm = context.packageManager
+            val t = pm.getPackageInfo(context.packageName, 0)
+            t.firstInstallTime != t.lastUpdateTime
+        }.getOrDefault(false)
+        val unseen = vm.lastSeenVersion.value in 1 until code
+        if ((unseen || upgraded) && code > 1) {
+            WhatsNew.notes[code]?.let { notes ->
+                whatsNewNotes = notes
+                showWhatsNew = true
+            }
+            vm.markVersionSeen(code)
+        }
+    }
     val favoritesSongs = remember(library.songs, favorites) { library.songs.filter { it.id in favorites } }
     val recentSongs = remember(library.songs, recents) {
         recents.mapNotNull { id -> library.songById[id] }
@@ -130,6 +167,20 @@ fun HomeScreen(
             }
         }
 
+        updateInfo?.let { info ->
+            item {
+                UpdateCard(
+                    info = info,
+                    onUpdate = {
+                        val intent = android.content.Intent(
+                            android.content.Intent.ACTION_VIEW,
+                            android.net.Uri.parse(info.apkUrl),
+                        )
+                        runCatching { context.startActivity(intent) }
+                    },
+                )
+            }
+        }
         item {
             Row(
                 Modifier
@@ -321,6 +372,14 @@ fun HomeScreen(
                 vm.createPlaylist(name)
                 showNewPlaylist = false
             },
+        )
+    }
+
+    if (showWhatsNew) {
+        WhatsNewDialog(
+            versionLabel = com.spimp3.app.BuildConfig.VERSION_NAME,
+            notes = whatsNewNotes,
+            onDismiss = { showWhatsNew = false },
         )
     }
 

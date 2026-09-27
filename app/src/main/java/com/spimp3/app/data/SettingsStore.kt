@@ -33,6 +33,8 @@ class SettingsStore(private val context: Context) {
         val PLAYLISTS = stringPreferencesKey("playlists_json")
         val FAVORITES = stringPreferencesKey("favorites_json")
         val RECENTS = stringPreferencesKey("recents_json")
+        val UPDATE_CHECK = booleanPreferencesKey("update_check_enabled")
+        val LAST_SEEN_VERSION = intPreferencesKey("last_seen_version_code")
     }
 
     enum class SortOrder(val label: String) {
@@ -126,4 +128,22 @@ class SettingsStore(private val context: Context) {
             p[Keys.RECENTS] = cur.take(50).joinToString(",")
         }
     }
+
+    // ---- updates ----
+
+    /** Master switch for the GitHub update check (Settings → Updates). */
+    val updateCheckEnabled: Flow<Boolean> = context.dataStore.data.map { p ->
+        p[Keys.UPDATE_CHECK] ?: true
+    }
+
+    suspend fun setUpdateCheckEnabled(value: Boolean) =
+        context.dataStore.edit { it[Keys.UPDATE_CHECK] = value }
+
+    /** Latest versionCode this install has shown its "What's new" dialog for. */
+    val lastSeenVersion: Flow<Int> = context.dataStore.data.map { p ->
+        p[Keys.LAST_SEEN_VERSION] ?: -1
+    }
+
+    suspend fun setLastSeenVersion(code: Int) =
+        context.dataStore.edit { it[Keys.LAST_SEEN_VERSION] = code }
 }

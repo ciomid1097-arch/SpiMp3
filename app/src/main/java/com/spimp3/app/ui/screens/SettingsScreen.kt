@@ -125,13 +125,26 @@ fun SettingsScreen(
         SettingsGroup("Playback")
         ToggleRow("Gapless playback", settings.gapless) { vm.setGapless(it) }
 
+        SettingsGroup("Updates")
+        ToggleRow("Check for updates", vm.updateCheckEnabled.collectAsState().value) {
+            vm.setUpdateCheckEnabled(it)
+        }
+        Text(
+            "When on, SpiMp3 makes one small request to GitHub Releases to learn " +
+                "about new versions. Nothing else ever leaves the device, and your " +
+                "library is never part of it.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp),
+        )
+
         SettingsGroup("Library")
         InfoRow("Tracks", "${library.songs.size}")
         InfoRow("Albums", "${library.albums.size}")
         InfoRow("Artists", "${library.artists.size}")
 
         SettingsGroup("About")
-        InfoRow("App", "SpiMp3 1.0.0")
+        InfoRow("App", "SpiMp3 ${com.spimp3.app.BuildConfig.VERSION_NAME}")
         InfoRow("Player", "ExoPlayer (Media3)")
         Text(
             "A beautiful, fast, fully offline music player.",

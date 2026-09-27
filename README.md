@@ -31,6 +31,7 @@ install it, grant audio access — done. The app never touches the network.
 | Tag editing | Rename a song, change artist/album/year/genre and set cover art — written into the file's own ID3 tags |
 | Delete | Via Android's own confirmation dialog, so the OS always has the final say |
 | Refresh | Pull down on any library screen to rescan after copying new music in |
+| Updates | Optional, off-able update check against GitHub Releases: a banner appears when a new version is out and taps straight into the direct APK link; after upgrading, a "What's new" dialog lists the changes. One plain request, no identifiers, no library data, nothing else |
 | Legal | Privacy policy and terms readable offline, in-app and on the web |
 
 ## Tech
@@ -50,6 +51,15 @@ install it, grant audio access — done. The app never touches the network.
 ./gradlew :app:assembleRelease      # minified release APK (~4.2 MB)
 ./gradlew :app:bundleRelease        # signed AAB for Google Play
 ./gradlew :app:test                 # unit tests
+```
+
+CI mirrors this: **build.yml** compiles and unit-tests every push (debug key);
+**release.yml** fires on a `vX.Y.Z` tag, restores the signing key from GitHub
+Secrets, builds a signed APK and attaches it to the matching Release. Publishing
+an update is therefore just:
+
+```bash
+git tag v1.1.0 && git push origin v1.1.0
 ```
 
 Output lands in `app/build/outputs/…` (or `$SPIMP3_OUT_DIR` when set — see below).

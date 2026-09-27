@@ -45,6 +45,12 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     val recents: StateFlow<List<Long>> = settingsStore.recents
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
+    val updateCheckEnabled: StateFlow<Boolean> = settingsStore.updateCheckEnabled
+        .stateIn(viewModelScope, SharingStarted.Eagerly, true)
+
+    val lastSeenVersion: StateFlow<Int> = settingsStore.lastSeenVersion
+        .stateIn(viewModelScope, SharingStarted.Eagerly, -1)
+
     init {
         refreshPermission()
         viewModelScope.launch { player.connect() }
@@ -125,6 +131,12 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
 
     fun setFavorites(ids: Set<Long>, favorite: Boolean) =
         viewModelScope.launch { settingsStore.setFavorites(ids, favorite) }
+
+    fun setUpdateCheckEnabled(value: Boolean) =
+        viewModelScope.launch { settingsStore.setUpdateCheckEnabled(value) }
+
+    fun markVersionSeen(code: Int) =
+        viewModelScope.launch { settingsStore.setLastSeenVersion(code) }
     fun setGapless(value: Boolean) = viewModelScope.launch { settingsStore.setGapless(value) }
 
     override fun onCleared() {

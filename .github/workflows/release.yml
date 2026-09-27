@@ -1,0 +1,68 @@
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Extract signing materials from secrets
+        env:
+          KEYSTORE_BASE64: ${{ secrets.SECRET_KEYSTORE_BASE64 }}
+          KEYSTORE_PROPS: ${{ secrets.SECRET_KEYSTORE_PROPERTIES }}
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 -d > spimp3-release.p12
+          echo "$KEYSTORE_PROPS" > keystore.properties
+
+      - name: Build signed release (APK + AAB)
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon :app:assembleRelease :app:bundleRelease
+
+      - name: Verify the APK is signed
+        run: |
+          BT=$(ls -d "${ANDROID_HOME}/build-tools"/*/ | sort -V | tail -1)
+          "$BT/apksigner" verify --print-certs app/build/outputs/apk/release/app-release.apk | tee /tmp/certs.txt
+          grep -q "certificate SHA-256 digest" /tmp/certs.txt
+          echo "Release APK is properly signed."
+
+      # For pre-existing releases (like v1.0.1) this uploads the asset; for
+      # brand-new tags create-release runs first and the upload lands on the
+      # fresh release.
+      - name: Create release when missing
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          if ! gh release view "$TAG" >/dev/null 2>&1; then
+            gh release create "$TAG" --title "SpiMp3 $TAG" --generate-notes
+          fi
+
+      - name: Attach APK (only — the update checker picks the first .apk asset)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          VER=${TAG#v}
+          gh release upload "$TAG" \
+            "app/build/outputs/apk/release/app-release.apk#SpiMp3-$VER.apk" \
+            --clobber
+
+      - name: Summary
+        run: echo "Release ${{ github.ref_name }} published with APK." >> "$GITHUB_STEP_SUMMARY"

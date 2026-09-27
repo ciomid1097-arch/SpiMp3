@@ -33,7 +33,7 @@ import com.spimp3.app.ui.theme.accentColor
 /** Which bundled legal document to show. */
 enum class LegalDoc { PRIVACY_POLICY, TERMS }
 
-private const val APP_VERSION = "1.0.0"
+private const val APP_VERSION = "1.1.0"
 private const val LAST_UPDATED = "27 September 2026"
 
 /**
@@ -99,46 +99,50 @@ fun LegalScreen(doc: LegalDoc, onBack: () -> Unit) {
 private fun PrivacyPolicyBody() {
     H1("The short version")
     P(
-        "SpiMp3 collects nothing, sends nothing and shares nothing. The app does " +
-            "not hold the INTERNET permission, so it is technically incapable of " +
-            "opening a network connection of any kind. Your music stays on your " +
-            "phone, on your terms.",
+        "SpiMp3 collects nothing, sends nothing and shares nothing. Your music " +
+            "library, playlists and settings stay on your phone, on your terms. " +
+            "The single optional network feature is the update check, described " +
+            "below — and you can switch it off entirely.",
     )
 
     H1("1. What we collect")
     P("Nothing. We do not collect personal information, usage data, diagnostics or crash reports. There is no analytics SDK, no advertising SDK and no telemetry of any kind in the app.")
 
-    H1("2. What the app stores on your device")
+    H1("2. The one optional network request (update check)")
+    P("When enabled (Settings → Updates), the app asks GitHub's public Releases endpoint whether a newer SpiMp3 version exists, so it can offer you the download link. That request contains nothing about you: no identifiers, no library contents, no settings — just a plain request for the latest release information. The response (version number and download link) is held in memory only. Turning the switch off stops all network activity; the app is then fully offline again.")
+
+    H1("3. What the app stores on your device")
     P("The following data is written only to the app's own private storage, which Android isolates from every other app. It never leaves the device and we cannot see it:")
     Bullet("Your settings — theme, accent colour, playback preferences")
     Bullet("Your playlists, favourites and recently played history")
     Bullet("The last playing queue and playback position, so playback resumes where you left off")
     P("You can erase all of this at any time by clearing SpiMp3's storage in Android Settings → Apps → SpiMp3 → Storage, or by uninstalling the app.")
 
-    H1("3. Permissions, and why we ask for them")
+    H1("4. Permissions, and why we ask for them")
     P("SpiMp3 requests only the following permissions. You can verify this list yourself in Android Settings → Apps → SpiMp3 → Permissions:")
     Bullet("Audio — required to find and play the music files already on your device.")
-    Bullet("Notifications — required to show playback controls. Android shows a \"nearby devices\" style permission dialog; declining it only hides the notification.")
+    Bullet("Notifications — required to show playback controls and the update banner. Declining only hides them.")
     Bullet("Foreground service — required so playback continues while the app is in the background.")
     Bullet("Wake lock — required so playback is not interrupted when the screen turns off.")
-    P("SpiMp3 does not request the INTERNET permission. It also does not request access to your contacts, location, camera, microphone, files outside your music, or your device identifiers. Any \"network state\" capability that appears alongside the playback engine is inherited from Android's media framework, is read-only, and cannot transfer data.")
+    Bullet("Internet — used only by the optional update check above. Nothing else in the app touches the network, and the check can be disabled in Settings → Updates.")
+    P("SpiMp3 does not request access to your contacts, location, camera, microphone, or files outside your music. Any \"network state\" capability that appears alongside the playback engine is inherited from Android's media framework, is read-only, and cannot transfer data.")
 
-    H1("4. Your music files")
+    H1("5. Your music files")
     P("SpiMp3 reads audio files in place, where they already live in Android's shared storage. It does not duplicate, move, convert, upload or modify them. The only exception is the \"Edit details\" action, which you must start yourself: it writes the title, artist, album, year, genre and cover art you type directly into the audio file's own metadata tags, on your device. Deleting a song always goes through Android's own confirmation dialog, and the operating system remains in control of the operation.")
 
-    H1("5. Third parties")
+    H1("6. Third parties")
     P("None. SpiMp3 contains no third-party advertising, analytics, attribution or social SDKs, and it has no backend servers of its own.")
 
-    H1("6. Children")
+    H1("7. Children")
     P("SpiMp3 is suitable for all ages and collects no data from anyone, including children.")
 
-    H1("7. Your rights")
+    H1("8. Your rights")
     P("Because no data is collected or transmitted, there is nothing for us to export, correct or delete on your behalf. Everything SpiMp3 stores is on your device and under your control through Android's own settings.")
 
-    H1("8. Changes to this policy")
+    H1("9. Changes to this policy")
     P("If this policy changes, the updated version will ship with the app update and the date at the top of this page will change. Because the app has no network access, it cannot silently change anything about your data.")
 
-    H1("9. Contact")
+    H1("10. Contact")
     P("Questions about this policy are welcome at workspikestudio@gmail.com, or on Telegram at @spike_c.")
 }
 

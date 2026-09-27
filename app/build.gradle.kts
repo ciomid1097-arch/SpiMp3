@@ -82,13 +82,11 @@ android {
             signingConfig = when {
                 hasReleaseKeystore -> signingConfigs.getByName("release")
                 signWithDebugKey -> signingConfigs.getByName("debug")
-                else -> throw GradleException(
-                    "Refusing to build a release APK without a signing key.\n" +
-                        "keystore.properties was not found at ${keystorePropertiesFile.absolutePath}.\n" +
-                        "Create it (see store/keystore.properties.example) so the APK is signed with the " +
-                        "real release key — app stores reject debug-signed APKs.\n" +
-                        "For a throwaway local build pass -Pspimp3.signWithDebugKey=true."
-                )
+                // Left unset on purpose: AGP only resolves it when a release
+                // artifact is actually packaged, and the guard task below is what
+                // turns a missing key into a hard failure. Failing here instead
+                // would break assembleDebug / test / lint on a fresh clone.
+                else -> null
             }
         }
     }
@@ -184,4 +182,41 @@ dependencies {
 
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()
+}
+
+/**
+ * Fails the build when a release artifact is about to be packaged without a real
+ * signing key. Hooked into the packaging tasks rather than evaluated at
+ * configuration time, so a fresh clone can still run assembleDebug / test / lint.
+ */
+val releaseSigningGuard = tasks.register("checkReleaseSigning") {
+    group = "verification"
+    description = "Fails if a release build would not be signed with the release key."
+
+    // Captured into local vals: the configuration cache cannot serialise
+    // references back into the Gradle script object.
+    val storeFilePath = keystoreProperties.getProperty("storeFile")
+    val keystorePath = keystorePropertiesFile.absolutePath
+    val signedWithReleaseKey = hasReleaseKeystore
+    val optIntoDebugKey = signWithDebugKey
+
+    doLast {
+        when {
+            signedWithReleaseKey ->
+                logger.lifecycle("[spimp3] Release signing: using $storeFilePath")
+            optIntoDebugKey ->
+                logger.warn("[spimp3] Signing release with the DEBUG key — this APK is not publishable.")
+            else -> throw GradleException(
+                "Refusing to build a release APK without a signing key.\n" +
+                    "keystore.properties was not found at $keystorePath.\n" +
+                    "Create it (see store/keystore.properties.example) so the APK carries the real " +
+                    "release key — app stores reject debug-signed APKs.\n" +
+                    "For a throwaway local build pass -Pspimp3.signWithDebugKey=true."
+            )
+        }
+    }
+}
+
+tasks.matching { it.name in setOf("packageRelease", "signReleaseBundle") }.configureEach {
+    dependsOn(releaseSigningGuard)
 }

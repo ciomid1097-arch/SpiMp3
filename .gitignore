@@ -1,0 +1,23 @@
+# Gradle
+.gradle/
+build/
+*/build/
+out/
+.kotlin/
+
+# Signing secrets — NEVER commit these
+keystore.properties
+*.jks
+*.p12
+*.keystore
+
+# Local machine config
+local.properties
+
+# IDE
+.idea/
+*.iml
+.DS_Store
+
+# Generated store assets (regenerate with tools/StoreArtwork.java)
+shots/

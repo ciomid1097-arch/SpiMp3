@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy Policy — SpiMp3</title>
+<meta name="description" content="SpiMp3 collects nothing, sends nothing and shares nothing. It has no internet permission.">
+<style>
+  :root{
+    --bg:#0B0B16; --surface:#14141F; --line:#23233A;
+    --text:#E8E8F0; --muted:#A0A0B8; --accent:#22C55E;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font:16px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:760px; margin:0 auto; padding:0 22px 90px}
+  header{padding:64px 0 32px; border-bottom:1px solid var(--line); margin-bottom:36px}
+  .logo{display:flex; align-items:center; gap:14px; margin-bottom:20px}
+  .mark{
+    width:52px; height:52px; border-radius:14px; flex:0 0 auto;
+    background:linear-gradient(145deg,#10203a,#0b0b16 65%);
+    display:flex; align-items:center; justify-content:center; gap:3px;
+    border:1px solid #2a3350;
+  }
+  .bar{width:5px; border-radius:3px; background:linear-gradient(180deg,#4ade80,#22C55E)}
+  h1{font-size:30px; margin:0; letter-spacing:-0.4px}
+  .sub{color:var(--muted); font-size:14px; margin-top:6px}
+  h2{font-size:19px; margin:38px 0 10px; letter-spacing:-0.2px}
+  p{margin:0 0 14px}
+  ul{margin:0 0 14px; padding-left:20px}
+  li{margin-bottom:8px}
+  li::marker{color:var(--accent)}
+  .badge{
+    display:inline-block; margin:0 0 26px; padding:9px 16px; border-radius:999px;
+    background:rgba(34,197,94,.12); border:1px solid rgba(34,197,94,.35);
+    color:#4ade80; font-size:14px; font-weight:600;
+  }
+  .card{
+    background:var(--surface); border:1px solid var(--line);
+    border-radius:16px; padding:22px 24px; margin:0 0 22px;
+  }
+  .no{color:var(--muted)}
+  .no::marker{color:#ef4444}
+  code{
+    background:#1b1b2b; border:1px solid var(--line); border-radius:6px;
+    padding:2px 7px; font-size:14px;
+  }
+  .contact a{color:var(--accent); text-decoration:none}
+  .contact a:hover{text-decoration:underline}
+  footer{margin-top:56px; padding-top:24px; border-top:1px solid var(--line); color:var(--muted); font-size:14px}
+  @media (max-width:480px){ h1{font-size:24px} header{padding:40px 0 26px} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="logo">
+    <div class="mark">
+      <div class="bar" style="height:16px"></div>
+      <div class="bar" style="height:26px"></div>
+      <div class="bar" style="height:36px"></div>
+    </div>
+    <div>
+      <h1>Privacy Policy</h1>
+      <div class="sub">SpiMp3 for Android · version 1.0.0</div>
+    </div>
+  </div>
+  <div class="sub">Last updated: 27 September 2026</div>
+</header>
+
+<div class="badge">No data collected. No data shared. No internet permission.</div>
+
+<div class="card">
+  <p><strong>The short version.</strong> SpiMp3 collects nothing, sends nothing and shares
+  nothing. The app does not hold the <code>INTERNET</code> permission, so it is technically
+  incapable of opening a network connection of any kind. Your music stays on your phone,
+  on your terms.</p>
+</div>
+
+<h2>1. What we collect</h2>
+<p>Nothing. We do not collect personal information, usage data, diagnostics or crash reports.
+There is no analytics SDK, no advertising SDK and no telemetry of any kind in the app.</p>
+
+<h2>2. What the app stores on your device</h2>
+<p>The following data is written only to the app's own private storage, which Android isolates
+from every other app. It never leaves the device and we cannot see it:</p>
+<ul>
+  <li>Your settings — theme, accent colour and playback preferences</li>
+  <li>Your playlists, favourites and recently played history</li>
+  <li>The last playing queue and playback position, so playback resumes where you left off</li>
+</ul>
+<p>You can erase all of this at any time by clearing SpiMp3's storage in
+Android Settings → Apps → SpiMp3 → Storage, or by uninstalling the app.</p>
+
+<h2>3. Permissions, and why we ask for them</h2>
+<p>SpiMp3 requests only the following permissions. You can verify this list yourself in
+Android Settings → Apps → SpiMp3 → Permissions:</p>
+<ul>
+  <li><strong>Audio</strong> — required to find and play the music files already on your device.</li>
+  <li><strong>Notifications</strong> — required to show playback controls. Declining only hides the notification.</li>
+  <li><strong>Foreground service</strong> — required so playback continues while the app is in the background.</li>
+  <li><strong>Wake lock</strong> — required so playback is not interrupted when the screen turns off.</li>
+</ul>
+<p>SpiMp3 does not request the <code>INTERNET</code> permission. It also does not request
+access to your contacts, location, camera, microphone, files outside your music, or your
+device identifiers. Any "network state" capability that appears alongside the playback engine
+is inherited from Android's media framework, is read-only, and cannot transfer data.</p>
+
+<h2>4. Your music files</h2>
+<p>SpiMp3 reads audio files in place, where they already live in Android's shared storage.
+It does not duplicate, move, convert, upload or modify them. The only exception is the
+"Edit details" action, which you must start yourself: it writes the title, artist, album,
+year, genre and cover art you type directly into the audio file's own metadata tags, on your
+device. Deleting a song always goes through Android's own confirmation dialog, and the
+operating system remains in control of the operation.</p>
+
+<h2>5. Third parties</h2>
+<p>None. SpiMp3 contains no third-party advertising, analytics, attribution or social SDKs,
+and it has no backend servers of its own.</p>
+
+<h2>6. Children</h2>
+<p>SpiMp3 is suitable for all ages and collects no data from anyone, including children.</p>
+
+<h2>7. Your rights</h2>
+<p>Because no data is collected or transmitted, there is nothing for us to export, correct or
+delete on your behalf. Everything SpiMp3 stores is on your device and under your control
+through Android's own settings.</p>
+
+<h2>8. Changes to this policy</h2>
+<p>If this policy changes, the updated version will ship with the app update and the date at
+the top of this page will change. Because the app has no network access, it cannot silently
+change anything about your data.</p>
+
+<h2>9. Contact</h2>
+<p class="contact">
+  Email: <a href="mailto:workspikestudio@gmail.com">workspikestudio@gmail.com</a><br>
+  Telegram: <a href="https://t.me/spike_c" target="_blank" rel="noopener">@spike_c</a>
+</p>
+
+<footer>SpiMp3 is an independent, open-minded offline music player. It is not affiliated with,
+endorsed by, or sponsored by Google, Spotify or any other music service.</footer>
+
+</div>
+</body>
+</html>

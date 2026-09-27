@@ -48,10 +48,10 @@ android {
         applicationId = "com.spimp3.app"
         minSdk = 26
         targetSdk = 36
-        versionCode = 6
-        versionName = "1.1.3"
-        buildConfigField("int", "VERSION_CODE", "6")
-        buildConfigField("String", "VERSION_NAME", "\"1.1.3\"")
+        versionCode = 7
+        versionName = "1.1.4"
+        buildConfigField("int", "VERSION_CODE", "7")
+        buildConfigField("String", "VERSION_NAME", "\"1.1.4\"")
         vectorDrawables {
             useSupportLibrary = true
         }

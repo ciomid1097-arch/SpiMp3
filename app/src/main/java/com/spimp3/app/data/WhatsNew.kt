@@ -31,5 +31,8 @@ object WhatsNew {
         6 to listOf(
             "New, centered app icon — the launcher icon now matches the store listing",
         ),
+        7 to listOf(
+            "Fresh new equalizer icon",
+        ),
     )
 }

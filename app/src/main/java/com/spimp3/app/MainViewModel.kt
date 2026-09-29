@@ -10,6 +10,9 @@ import androidx.lifecycle.viewModelScope
 import com.spimp3.app.data.MusicRepository
 import com.spimp3.app.data.Playlist
 import com.spimp3.app.data.SettingsStore
+import com.spimp3.app.audio.AudioFxController
+import com.spimp3.app.audio.DeviceVolumeController
+import com.spimp3.app.audio.PresetStore
 import com.spimp3.app.playback.PlayerConnection
 import androidx.compose.runtime.mutableStateOf
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,6 +30,20 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     val settingsStore = SettingsStore(app)
 
     val player = PlayerConnection(app, viewModelScope)
+
+    // ---- Equalizer (audiofx) ----
+    val audioFx = AudioFxController()
+    val fxPresets = PresetStore(app)
+    val deviceVolume = DeviceVolumeController(app)
+
+    val userFxPresets: StateFlow<List<PresetStore.StoredPreset>> = fxPresets.presets
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+    fun saveFxPreset(preset: PresetStore.StoredPreset) =
+        viewModelScope.launch { fxPresets.save(preset) }
+
+    fun deleteFxPreset(name: String) =
+        viewModelScope.launch { fxPresets.delete(name) }
 
     private val _hasPermission = MutableStateFlow(false)
     val hasPermission: StateFlow<Boolean> = _hasPermission.asStateFlow()
@@ -91,6 +108,13 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     init {
         refreshPermission()
         viewModelScope.launch { player.connect() }
+        // Attach the effects chain whenever the player gets a new audio session
+        // (ExoPlayer hands out the session id after the first prepare()).
+        viewModelScope.launch {
+            player.audioSessionId.collect { id ->
+                if (id > 0) audioFx.attach(id)
+            }
+        }
     }
 
     fun refreshPermission() {
@@ -177,6 +201,8 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     fun setGapless(value: Boolean) = viewModelScope.launch { settingsStore.setGapless(value) }
 
     override fun onCleared() {
+        audioFx.detach()
+        deviceVolume.close()
         player.release()
         super.onCleared()
     }

@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.rounded.Equalizer
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material.icons.rounded.PlaylistAdd
@@ -58,6 +59,7 @@ fun SongMenuSheet(
     onDelete: (Song) -> Unit,
     onRemoveFromPlaylist: ((Song) -> Unit)? = null,
     onShowInfo: (Song) -> Unit,
+    onOpenEqualizer: (() -> Unit)? = null,
 ) {
     if (song == null) return
     var showDeleteConfirm by remember { mutableStateOf(false) }
@@ -108,6 +110,12 @@ fun SongMenuSheet(
             color = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f),
         )
         SheetItem(Icons.Outlined.Edit, "Edit details", highlight = true) { onEdit(song) }
+        if (onOpenEqualizer != null) {
+            SheetItem(Icons.Rounded.Equalizer, "Equalizer", highlight = true) {
+                onDismiss()
+                onOpenEqualizer()
+            }
+        }
         SheetItem(Icons.Rounded.Share, "Share") { onShare(song) }
         SheetItem(Icons.Outlined.Info, "Song info") { showInfo = true }
         SheetItem(

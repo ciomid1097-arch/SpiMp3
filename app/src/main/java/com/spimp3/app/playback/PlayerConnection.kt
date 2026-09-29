@@ -57,6 +57,14 @@ class PlayerConnection(
     private val _speed = MutableStateFlow(1f)
     val speed: StateFlow<Float> = _speed.asStateFlow()
 
+    private val _audioSessionId = MutableStateFlow(-1)
+
+    /**
+     * ExoPlayer's audio session id (-1 until the first media is prepared).
+     * Exposed so audiofx (Equalizer/Visualizer) can attach to the same stream.
+     */
+    val audioSessionId: StateFlow<Int> = _audioSessionId.asStateFlow()
+
     private val playerListener = object : Player.Listener {
         override fun onIsPlayingChanged(isPlaying: Boolean) {
             _isPlaying.value = isPlaying
@@ -71,6 +79,7 @@ class PlayerConnection(
 
         override fun onPlaybackStateChanged(playbackState: Int) {
             _durationMs.value = controller?.duration?.takeIf { it > 0 } ?: 0L
+            _audioSessionId.value = controller?.audioSessionId ?: -1
         }
 
         override fun onShuffleModeEnabledChanged(enabled: Boolean) {
@@ -94,6 +103,7 @@ class PlayerConnection(
         _currentSongId.value = controller?.currentMediaItem?.mediaId?.toLongOrNull()
         _shuffle.value = controller?.shuffleModeEnabled ?: false
         _repeatMode.value = controller?.repeatMode ?: Player.REPEAT_MODE_OFF
+        _audioSessionId.value = controller?.audioSessionId ?: -1
         refreshQueue()
         // Position ticker (250ms) while connected
         scope.launch {

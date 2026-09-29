@@ -34,5 +34,10 @@ object WhatsNew {
         7 to listOf(
             "Fresh new equalizer icon",
         ),
+        8 to listOf(
+            "Full equalizer: presets, a draggable 5-band curve, bass & treble knobs",
+            "Save your own presets — they survive restarts; the switch itself resets on exit",
+            "Open it from the song menu or the icon at the top of Now Playing",
+        ),
     )
 }

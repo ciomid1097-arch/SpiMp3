@@ -38,6 +38,7 @@ import androidx.compose.material.icons.rounded.SkipPrevious
 import androidx.compose.material.icons.rounded.Speed
 import androidx.compose.material.icons.rounded.Bedtime
 import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.Equalizer
 import androidx.compose.material.icons.rounded.Lyrics
 import androidx.compose.material.icons.rounded.QueueMusic
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -85,6 +86,7 @@ fun NowPlayingScreen(
     onBack: () -> Unit,
     onSongClick: (com.spimp3.app.data.Song, List<com.spimp3.app.data.Song>) -> Unit,
     onOpenMenu: (com.spimp3.app.data.Song) -> Unit,
+    onOpenEqualizer: () -> Unit = {},
 ) {
     val player = vm.player
     val songId by player.currentSongId.collectAsState()
@@ -166,6 +168,9 @@ fun NowPlayingScreen(
                 Spacer(Modifier.weight(1f))
                 IconButton(onClick = { showSleep = true }) {
                     Icon(Icons.Rounded.Bedtime, contentDescription = "Sleep timer", tint = Color.White)
+                }
+                IconButton(onClick = onOpenEqualizer) {
+                    Icon(Icons.Rounded.Equalizer, contentDescription = "Equalizer", tint = Color.White)
                 }
             }
 

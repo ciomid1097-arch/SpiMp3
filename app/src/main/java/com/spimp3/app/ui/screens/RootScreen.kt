@@ -69,6 +69,7 @@ object Routes {
     const val FOLDER_DETAIL = "folder/{encoded}"
     const val PLAYLIST_DETAIL = "playlist/{playlistId}"
     const val SETTINGS = "settings"
+    const val EQUALIZER = "equalizer"
     const val SEARCH = "search"
     const val SMART_LIST = "list/{title}/{ids}"
     const val LEGAL = "legal/{doc}"
@@ -486,6 +487,9 @@ fun RootScreen(vm: MainViewModel, debugRoute: String? = null) {
                             debugScrollToBottom = scrollSettingsToBottom,
                         )
                     }
+                    composable(Routes.EQUALIZER) {
+                        EqualizerScreen(vm = vm, onBack = { nav.popBackStack() })
+                    }
                     composable(Routes.LEGAL) { entry ->
                         LegalScreen(
                             doc = runCatching {
@@ -537,6 +541,7 @@ fun RootScreen(vm: MainViewModel, debugRoute: String? = null) {
                             onBack = { nav.popBackStack() },
                             onSongClick = { s, list -> onSongClick(s, list) },
                             onOpenMenu = { menuSong = it },
+                            onOpenEqualizer = { nav.navigate(Routes.EQUALIZER) },
                         )
                     }
                 }
@@ -612,6 +617,7 @@ fun RootScreen(vm: MainViewModel, debugRoute: String? = null) {
                 }
             },
             onShowInfo = { },
+            onOpenEqualizer = { nav.navigate(Routes.EQUALIZER) },
         )
 
         SnackbarHost(

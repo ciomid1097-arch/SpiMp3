@@ -176,3 +176,11 @@ through a dozen screen signatures, so every list in the app — home, library ta
 search results, album/artist/folder detail, playlists, smart lists — supports it
 without a line of per-screen plumbing. Each list registers its visible ids via
 `SelectionUniverse(ids)` so "Select all" ticks exactly what the user can see.
+
+## License
+
+Copyright © 2026 workspikestudio.
+
+This program is free software: you can redistribute it and/or modify it under the terms of the **GNU General Public License v3.0** — see the [LICENSE](LICENSE) file.
+
+In short: you may use, study, share and modify this code, but any fork or derivative (including repackaged builds) must also be released under GPL-3.0 with full source, and must keep the original copyright notice. Selling a closed-source copy of this app is not permitted.
